@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Vireon Proofpack Witness Bundle v1",
+  "type": "object",
+  "required": ["schema_version", "witness", "statement_sha256", "signature", "certificate", "log"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "witness": {
+      "type": "object",
+      "required": ["witness_id", "issuer", "subject"],
+      "properties": {
+        "witness_id": { "type": "string" },
+        "issuer": { "type": "string" },
+        "subject": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "statement_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "signature": {
+      "type": "object",
+      "required": ["alg", "value_b64"],
+      "properties": {
+        "alg": { "type": "string" },
+        "value_b64": { "type": "string", "minLength": 8 }
+      },
+      "additionalProperties": false
+    },
+    "certificate": {
+      "type": "object",
+      "required": ["not_before", "not_after", "key_id"],
+      "properties": {
+        "not_before": { "type": "integer" },
+        "not_after": { "type": "integer" },
+        "key_id": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      },
+      "additionalProperties": false
+    },
+    "log": {
+      "type": "object",
+      "required": ["log_id", "integrated_time", "entry_hash_sha256", "prev_entry_hash_sha256"],
+      "properties": {
+        "log_id": { "type": "string" },
+        "integrated_time": { "type": "integer" },
+        "entry_hash_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "prev_entry_hash_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
