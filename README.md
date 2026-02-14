@@ -1,8 +1,11 @@
+
+
 **Trust-Debt Law:** a verified proofpack collapses “trust me” to **“k witnesses didn’t collude + verifier spec is honest.”**
 
 ![proofpack-ci](../../actions/workflows/ci.yml/badge.svg) ![license](https://img.shields.io/badge/license-MIT-green) ![release](https://img.shields.io/badge/release-v1.0.0-blue)
 
-https://github.com/a3fpro-lab/vireon-proofpack-ios/releases/tag/v1.0.0
+Release: https://github.com/a3fpro-lab/vireon-proofpack-ios/releases/tag/v1.0.0
+
 # vireon-proofpack-ios
 
 A **proofpack** is a tamper-evident, replay-verifiable container for **result claims**. It binds artifacts, the claim, provenance, and (when present) replay checks into a deterministic **PASS/FAIL** verifier pipeline.
@@ -10,25 +13,31 @@ A **proofpack** is a tamper-evident, replay-verifiable container for **result cl
 This repo is **iPhone-safe** (stdlib-only Python). It implements:
 
 - **Integrity**: `MANIFEST.json` (SHA-256 over artifacts)
-- **Binding**: `ATTESTATION.json` binds to manifest digest
+- **Binding**: `ATTESTATION.json` binds to the manifest digest
 - **k-of-n provenance**: witness bundles + `PROVENANCE_CERT.json`
 - **Transparency log**: append-only hash-chain (toy offline log)
 - **Replay**: deterministic toy trace + inequality check
+- **One-file verifier**: `vireon-verify.py` (download → run → PASS/FAIL)
 
 ---
 
 ## Repo layout
 
 - `vproofpack.py` — core proofpack library (stdlib only)
+- `vireon-verify.py` — **single-file** verifier (stdlib only)
 - `make_demo_pack.py` — generates `demo_pack/` with k witnesses
 - `verify_demo_pack.py` — verifies the pack (PASS/FAIL)
 - `tools/verify_pack.py` — verifies any pack path
+- `tools/verify_pack_strict.py` — strict policy verifier (k, issuer, time window)
+- `tools/schema_check.py` — lightweight schema validation
 - `tools/attack_suite.py` — demonstrates tamper → FAIL at the correct stage
+- `tools/print_pack_summary.py` — prints pack digests + PASS/FAIL (for public screenshots)
 - `docs/FORMULAS.md` — definitions and formulas used by the verifier
 - `docs/THEOREMS.md` — core soundness theorems
 - `FORMAL_PROOFS.md` — expanded proofs + toy replay inequality proof
 - `SPEC.md` / `VERIFIER.md` — standard + exact verification rules
 - `ARCHITECTURE.md` — production upgrade path (Sigstore/in-toto/shards)
+- `examples/` — stdlib RL-shaped demo + 1-bit tamper proof
 
 ---
 
@@ -46,7 +55,7 @@ So published results stop being social trust and become **mechanically verifiabl
 
 ---
 
-## Run (on any computer with Python 3.10+)
+## 10-second demo (Python 3.10+)
 
 ```bash
 python make_demo_pack.py
@@ -56,9 +65,45 @@ Expected output:
 
 PASS
 
-Tamper demo (shows FAIL modes):
+Strict policy (same pack, stricter rules):
+
+python tools/verify_pack_strict.py demo_pack --k 2 --min-issuers 1 --max-window 86400
+
+
+⸻
+
+One-file verifier (zero deps)
+
+If you want a single download that verifies a published pack:
+
+python vireon-verify.py demo_pack --k 2
+python vireon-verify.py demo_rl_pack --k 2
+
+This verifier is stdlib-only and runs in mobile Python apps (Pythonista/Pyto) and all OSes.
+
+⸻
+
+Tamper demo (expected FAIL modes)
+
+Attack suite (shows distinct tamper classes → correct FAIL stage):
 
 python tools/attack_suite.py
+
+Public summary printer (good for screenshots/posts):
+
+python tools/print_pack_summary.py demo_pack --k 2
+
+
+⸻
+
+RL-shaped demo (stdlib only)
+
+This demo generates RL-style artifacts (env params, seed, returns, rollout trace), seals them into a proofpack, then demonstrates that a 1-bit change triggers deterministic FAIL.
+
+python examples/rl_minicartpole.py
+python examples/make_rl_proofpack.py
+python tools/verify_pack_strict.py demo_rl_pack --k 2 --min-issuers 1 --max-window 86400
+python examples/rl_tamper_demo.py
 
 
 ⸻
@@ -100,12 +145,13 @@ This demo uses local HMAC witness bundles for portability. The architecture is d
 	•	distributed RL shard packs merged via Merkle roots
 
 See ARCHITECTURE.md and ROADMAP.md.
+
 ---
 
-FILE 40 — `tools/print_pack_summary.py` (makes screenshots for Grok/public)
+### Now add the file you referenced (tooling) exactly as-is
 
-Create: `tools/print_pack_summary.py`  
-Paste, then commit:
+Create new file: `tools/print_pack_summary.py`  
+Paste this and commit:
 
 ```python
 # tools/print_pack_summary.py
@@ -130,21 +176,23 @@ def main():
     root = Path(args.pack_dir)
     pp = root / "PROOFPACK"
 
-    d = vp.manifest_digest(pp)
+    ok, d = vp.manifest_digest(pp)
+    if not ok:
+        raise SystemExit(f"FAIL: {d}")
+
     att = load(pp / "ATTESTATION.json")
     prov = load(pp / "PROVENANCE_CERT.json")
 
-    ok, msg = vp.verify_all(root_dir=root, k=args.k)
+    ok2, msg = vp.verify_all(root_dir=root, k=args.k)
 
     print("PACK:", root.as_posix())
     print("MANIFEST_DIGEST_SHA256:", d)
     print("ATTESTATION_BINDS:", att["subject"]["digest"]["sha256"] == d)
     print("K_REQUIRED:", prov["k"])
     print("SUBJECT_DIGEST_MATCH:", prov["subject_digest_sha256"] == d)
-    print("VERIFY:", "PASS" if ok else f"FAIL:{msg}")
+    print("VERIFY:", "PASS" if ok2 else f"FAIL:{msg}")
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
 
