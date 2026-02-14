@@ -33,3 +33,6 @@ jobs:
 
       - name: Verify demo_pack (strict policy)
         run: python tools/verify_pack_strict.py demo_pack --k 2 --min-issuers 1 --max-window 86400
+
+      - name: Attack suite (expected FAIL modes)
+        run: python tools/attack_suite.py
