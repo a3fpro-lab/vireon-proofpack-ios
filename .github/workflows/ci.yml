@@ -20,5 +20,8 @@ jobs:
       - name: Generate demo_pack
         run: python make_demo_pack.py
 
+      - name: Schema checks (lightweight)
+        run: python tools/schema_check.py
+
       - name: Verify demo_pack
         run: python verify_demo_pack.py
