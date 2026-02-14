@@ -6,15 +6,17 @@
 # Usage:
 #   python tools/verify_pack_strict.py demo_pack --k 2 --min-issuers 2 --max-window 86400
 
+from __future__ import annotations
+
 from pathlib import Path
 import argparse
 import json
 import sys
 
-# Ensure repo root is importable when running from tools/
-REPO_ROOT = Path(__file__).resolve().parents[1]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+# ---- critical: make repo root importable when script is run from tools/ ----
+REPO_ROOT = Path(__file__).resolve().parent.parent  # .../repo_root
+sys.path.insert(0, str(REPO_ROOT))
+# --------------------------------------------------------------------------
 
 import vproofpack as vp  # noqa: E402
 
@@ -23,7 +25,7 @@ def load(p: Path):
     return json.loads(p.read_text(encoding="utf-8"))
 
 
-def main():
+def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("pack_dir", nargs="?", default="demo_pack")
     ap.add_argument("--k", type=int, default=2)
@@ -50,8 +52,7 @@ def main():
 
         nb = int(b["certificate"]["not_before"])
         na = int(b["certificate"]["not_after"])
-        window = na - nb
-        if window > args.max_window:
+        if (na - nb) > args.max_window:
             continue
 
         issuers.add(b["witness"]["issuer"])
