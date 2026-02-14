@@ -25,3 +25,6 @@ jobs:
 
       - name: Verify demo_pack
         run: python verify_demo_pack.py
+
+      - name: Verify demo_pack (strict policy)
+        run: python tools/verify_pack_strict.py demo_pack --k 2 --min-issuers 1 --max-window 86400
