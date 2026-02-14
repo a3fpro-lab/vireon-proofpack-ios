@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Local demo packs
+demo_pack/
+.local_log/
+.witness_keys/
+
+# Editors / OS
+.DS_Store
+.vscode/
+.idea/
+
+# Virtual envs
+.venv/
+venv/
