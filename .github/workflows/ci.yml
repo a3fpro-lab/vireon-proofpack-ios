@@ -22,17 +22,36 @@ jobs:
       - name: Syntax check
         run: python -m compileall -q .
 
-      - name: Generate demo_pack
+      - name: Install package (pip)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install .
+
+      - name: CLI sanity (vps)
+        run: vps --help
+
+      - name: Generate demo_pack (script)
         run: python make_demo_pack.py
 
       - name: Schema checks (lightweight)
         run: python tools/schema_check.py
 
-      - name: Verify demo_pack
+      - name: Verify demo_pack (script)
         run: python verify_demo_pack.py
 
       - name: Verify demo_pack (strict policy)
         run: python tools/verify_pack_strict.py demo_pack --k 2 --min-issuers 1 --max-window 86400
+
+      - name: Generate demo_pack via CLI
+        run: |
+          rm -rf demo_pack_cli
+          vps make-demo --out demo_pack_cli --steps 50 --eta 0.1 --k 2
+
+      - name: Verify demo_pack via CLI
+        run: vps verify demo_pack_cli --k 2
+
+      - name: Verify demo_pack via CLI (strict)
+        run: vps verify-strict demo_pack_cli --k 2 --min-issuers 1 --max-window 86400
 
       - name: Attack suite (expected FAIL modes)
         run: python tools/attack_suite.py
