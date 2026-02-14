@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Vireon Proofpack ATTESTATION v1",
+  "type": "object",
+  "required": ["schema_version", "statement_type", "issued_at", "subject", "policy", "nonce"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "statement_type": { "type": "string" },
+    "issued_at": { "type": "string" },
+    "subject": {
+      "type": "object",
+      "required": ["name", "digest"],
+      "properties": {
+        "name": { "type": "string" },
+        "digest": {
+          "type": "object",
+          "required": ["sha256"],
+          "properties": {
+            "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "policy": {
+      "type": "object",
+      "required": ["policy_id", "requirements"],
+      "properties": {
+        "policy_id": { "type": "string" },
+        "requirements": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "nonce": { "type": "string", "minLength": 8 }
+  },
+  "additionalProperties": false
+}
