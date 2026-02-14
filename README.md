@@ -2,6 +2,7 @@
 
 ![proofpack-ci](../../actions/workflows/ci.yml/badge.svg) ![license](https://img.shields.io/badge/license-MIT-green) ![release](https://img.shields.io/badge/release-v1.0.0-blue)
 
+https://github.com/a3fpro-lab/vireon-proofpack-ios/releases/tag/v1.0.0
 # vireon-proofpack-ios
 
 A **proofpack** is a tamper-evident, replay-verifiable container for **result claims**. It binds artifacts, the claim, provenance, and (when present) replay checks into a deterministic **PASS/FAIL** verifier pipeline.
