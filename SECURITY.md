@@ -22,3 +22,22 @@ Proofpacks collapse trust debt to the smallest remaining assumptions:
 - k witnesses didn’t collude
 - verifier spec matches the claimed policy
 Everything else becomes PASS/FAIL.
+
+# Security Policy
+
+## Reporting a vulnerability
+If you believe you found a security issue in VPS / proofpack verification:
+- Open a GitHub Security Advisory (preferred), or
+- Open an issue labeled **security**.
+
+Please include:
+- the affected file(s)
+- steps to reproduce
+- expected vs actual behavior
+- any proofpack sample that triggers the issue
+
+## Scope
+This repo is a reference implementation and spec. Security issues include:
+- verifier accepting a forged/tampered proofpack
+- hash/log/signature validation bypass
+- schema validation bypass that changes verification meaning
