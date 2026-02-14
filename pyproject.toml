@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vireon-proofpack"
+version = "1.0.0"
+description = "Vireon Proofpack Standard (VPS) v1.0.0 — iPhone-safe reference implementation for verifiable result claims."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+authors = [{name = "Vireon"}]
+keywords = ["reproducibility", "provenance", "verification", "ai", "supply-chain-security"]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+]
+
+# This repo is a single-module implementation (vproofpack.py) plus a CLI module.
+[tool.setuptools]
+py-modules = ["vproofpack", "vps_cli"]
+
+[project.scripts]
+vps = "vps_cli:main"
