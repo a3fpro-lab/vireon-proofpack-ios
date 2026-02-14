@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Vireon Proofpack Provenance Cert v1",
+  "type": "object",
+  "required": ["schema_version", "k", "subject_digest_sha256", "bundles"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "k": { "type": "integer", "minimum": 1 },
+    "subject_digest_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "bundles": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["witness_id", "path"],
+        "properties": {
+          "witness_id": { "type": "string" },
+          "path": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
