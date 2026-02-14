@@ -56,6 +56,18 @@ jobs:
       - name: Attack suite (expected FAIL modes)
         run: python tools/attack_suite.py
 
+      - name: RL artifacts (stdlib demo)
+        run: python examples/rl_minicartpole.py
+
+      - name: RL proofpack seal
+        run: python examples/make_rl_proofpack.py
+
+      - name: RL proofpack verify (strict)
+        run: python tools/verify_pack_strict.py demo_rl_pack --k 2 --min-issuers 1 --max-window 86400
+
+      - name: RL tamper demo (must fail after 1-bit flip)
+        run: python examples/rl_tamper_demo.py
+
       - name: Generate pinned test vectors
         run: python tools/generate_test_vectors.py
 
