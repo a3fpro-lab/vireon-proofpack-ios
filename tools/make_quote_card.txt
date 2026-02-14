@@ -1,0 +1,14 @@
+VIREON PROOFPACK STANDARD (VPS v1.0.0)
+
+Proofpacks are cryptographic receipts for result claims.
+
+PASS means:
+- artifacts match MANIFEST hashes (integrity)
+- ATTESTATION binds manifest digest (binding)
+- ≥k witnesses attest same statement (k-of-n provenance)
+- transparency log anchoring checks out (log)
+- replay rule passes when present (replay)
+
+Trust-Debt Law:
+Verified claims reduce “trust me” to:
+“k witnesses didn’t collude + verifier spec is honest.”
