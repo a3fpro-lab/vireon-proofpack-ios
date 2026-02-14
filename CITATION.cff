@@ -1,16 +1,23 @@
 cff-version: 1.2.0
-title: "Vireon Proofpack Standard (VPS) v1.0.0 — iPhone-safe reference implementation"
-message: "If you use this software, please cite it."
+title: "Vireon Proofpack Standard (VPS): k-of-n provenance proofpacks for verifiable result claims"
+message: "If you use this software/spec in research, please cite it."
 type: software
 authors:
-  - name: "Vireon"
-version: 1.0.0
-date-released: 2026-02-13
-license: MIT
-repository-code: "https://github.com/<YOUR_ORG_OR_USER>/<YOUR_REPO>"
+  - family-names: "Song"
+    given-names: "Inkwon"
+    name-particle: ""
+repository-code: "https://github.com/a3fpro-lab/vireon-proofpack-ios"
+license: "MIT"
+version: "1.0.0"
+date-released: "2026-02-13"
 keywords:
-  - reproducibility
   - provenance
-  - ai
+  - reproducibility
   - supply-chain-security
+  - attestations
+  - sigstore
+  - in-toto
+  - merkle
   - verification
+  - reinforcement-learning
+  - standards
