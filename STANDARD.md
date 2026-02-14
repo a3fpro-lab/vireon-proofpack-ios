@@ -1,3 +1,57 @@
+# VPS v1.0.0 — Vireon Proofpack Standard
+
+## Purpose
+A **proofpack** makes a published **result claim** tamper-evident and mechanically verifiable.
+
+**Trust-Debt Law:** verification collapses “trust me” to:
+1) ≥k witnesses didn’t collude, and
+2) the verifier spec is honest.
+
+Everything else becomes deterministic PASS/FAIL.
+
+## Objects (required)
+A proofpack directory contains:
+
+- `PROOFPACK/MANIFEST.json`  
+  SHA-256 digests over artifact bytes.
+
+- `PROOFPACK/ATTESTATION.json`  
+  Canonical claim statement binding to the manifest digest.
+
+- `WITNESS_BUNDLES/*.json`  
+  Witness attestations over the canonical statement (demo uses HMAC; production uses Sigstore/Ed25519).
+
+- `PROOFPACK/PROVENANCE_CERT.json`  
+  Policy requiring **k-of-n** valid witness bundles for the same statement.
+
+Artifacts live at:
+- `PROOFPACK/ARTIFACTS/` (any files: traces, metrics, configs, rollouts, checkpoints, etc.)
+
+## Verification (meaning of PASS)
+Verifier returns PASS iff:
+
+1) **Integrity:** all manifest file digests match bytes on disk  
+2) **Binding:** attestation digest equals manifest digest  
+3) **Provenance:** ≥k distinct witness bundles validate the same canonical statement  
+4) **Log membership:** witness log anchoring checks pass (demo offline hash-chain)  
+5) **Replay:** if replay artifacts exist, replay rule passes for every step
+
+On failure, verifier MUST return:
+- stage (integrity/binding/provenance/log/replay)
+- reason code (e.g., `SHA_MISMATCH:<path>`)
+
+## Canonicalization
+All signed/hashed statements use deterministic JSON canonicalization:
+- UTF-8
+- sorted keys
+- no whitespace
+
+## Reference implementation
+See:
+- `vproofpack.py`
+- `VERIFIER.md`
+- `docs/FORMULAS.md`, `docs/THEOREMS.md`, `FORMAL_PROOFS.md`
+
 # Vireon Proofpack Standard (VPS) v1.0.0 — Ratified
 
 ## Scope
@@ -6,6 +60,8 @@ VPS defines the minimal, enforceable objects and verification rules required to 
 A VPS proofpack is valid only if an independent verifier can re-run the verification rules and obtain PASS.
 
 ---
+
+
 
 ## Normative objects (MUST)
 
