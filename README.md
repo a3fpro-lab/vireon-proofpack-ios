@@ -1,110 +1,102 @@
-**Trust-Debt Law:** a verified proofpack collapses “trust me” to “k witnesses didn’t collude + verifier spec is honest.”
+**Trust-Debt Law:** a verified proofpack collapses “trust me” to **“k witnesses didn’t collude + verifier spec is honest.”**
+
 ![proofpack-ci](../../actions/workflows/ci.yml/badge.svg)
+
 # vireon-proofpack-ios
 
-A **proofpack** is a tamper-evident, replay-verifiable container for *result claims*.
+A **proofpack** is a tamper-evident, replay-verifiable container for **result claims**. It binds artifacts, the claim, provenance, and (when present) replay checks into a deterministic **PASS/FAIL** verifier pipeline.
 
 This repo is **iPhone-safe** (stdlib-only Python). It implements:
 
 - **Integrity**: `MANIFEST.json` (SHA-256 over artifacts)
 - **Binding**: `ATTESTATION.json` binds to manifest digest
-- **k-of-n provenance**: witness bundles + a provenance cert
-- **Transparency log**: append-only hash-chain (toy log, offline)
-- **Replay**: deterministic toy trace check
+- **k-of-n provenance**: witness bundles + `PROVENANCE_CERT.json`
+- **Transparency log**: append-only hash-chain (toy offline log)
+- **Replay**: deterministic toy trace + inequality check
+
+---
 
 ## Repo layout
 
 - `vproofpack.py` — core proofpack library (stdlib only)
 - `make_demo_pack.py` — generates `demo_pack/` with k witnesses
 - `verify_demo_pack.py` — verifies the pack (PASS/FAIL)
-- `docs/FORMULAS.md` — all formulas used by the verifier
-- `docs/THEOREMS.md` — formal theorems (soundness claims)
+- `tools/verify_pack.py` — verifies any pack path
+- `tools/attack_suite.py` — demonstrates tamper → FAIL at the correct stage
+- `docs/FORMULAS.md` — definitions and formulas used by the verifier
+- `docs/THEOREMS.md` — core soundness theorems
+- `FORMAL_PROOFS.md` — expanded proofs + toy replay inequality proof
+- `SPEC.md` / `VERIFIER.md` — standard + exact verification rules
+- `ARCHITECTURE.md` — production upgrade path (Sigstore/in-toto/shards)
+
+---
 
 ## What “PASS” means
 
 PASS implies:
-1) No artifact tampering (manifest matches files)
-2) Attestation binds exactly that manifest
-3) At least k distinct witness bundles validate the same statement
-4) The log hash-chain membership checks out
-5) The deterministic replay inequality holds for every step
 
-This reduces “trust me” to “k witnesses didn’t collude + verifier spec is honest.”
+1) **No artifact tampering** (manifest hashes match files)  
+2) **Claim binding holds** (attestation binds exactly that manifest digest)  
+3) **k-of-n provenance holds** (≥k distinct witness bundles validate the same canonical statement)  
+4) **Log membership holds** (hash-chain anchoring verifies)  
+5) **Replay holds** (if replay artifacts exist, the deterministic replay rule passes for every step)
 
-## Run (later, on any computer with Python 3.10+)
+So published results stop being social trust and become **mechanically verifiable**.
+
+---
+
+## Run (on any computer with Python 3.10+)
 
 ```bash
 python make_demo_pack.py
 python verify_demo_pack.py
 
-Commit.
+Expected output:
 
----
+PASS
 
-# FILE 3 — `docs/FORMULAS.md`
-Create new file: `docs/FORMULAS.md`  
-Paste:
+Tamper demo (shows FAIL modes):
 
-```md
-# Proofpack formulas (v1, iPhone-safe build)
+python tools/attack_suite.py
 
-Let \(H\) be SHA-256.
 
-## Hashes
-- File hash: \(h(f) = H(\text{bytes}(f))\)
-- Manifest digest: \(d = H(\text{bytes}(\texttt{MANIFEST.json}))\)
+⸻
 
-## Canonical statement encoding
-Let `canon(s)` be deterministic JSON canonicalization:
-sorted keys, no whitespace, UTF-8.
+The replay certificate (math, fully checked)
 
-Statement hash:
-\[
-\mathrm{stmt\_hash}(s) = H(\mathrm{canon}(s))
-\]
+The demo includes a deterministic replay inequality.
 
-## Attestation binding
-ATTESTATION contains `subject.digest.sha256 = d`.
+Step map:
+[
+x_{t+1} = (1-2\eta)x_t
+]
 
-Binding condition:
-\[
-\text{binds} \iff \texttt{ATTESTATION.subject.digest.sha256} = H(\texttt{MANIFEST bytes})
-\]
+Energy and progress:
+[
+E(x)=x^2,\quad P(x)=x^2
+]
 
-## Local transparency log (offline hash-chain)
-Each log entry commits to:
-\[
-e_i = (\text{prev}_i, \tau_i, \mathrm{stmt\_hash})
-\]
-\[
-\mathrm{entry\_hash}_i = H(\mathrm{canon}(e_i))
-\]
-and sets:
-\[
-\text{prev}_{i+1} = \mathrm{entry\_hash}_i
-\]
-Changing any past entry breaks the chain.
-
-## k-of-n provenance
-A witness bundle is valid iff:
-1) statement hash matches attestation
-2) signature verifies over canonical statement bytes
-3) integrated time \(\tau\) is inside cert window \([nb, na]\)
-4) log membership verifies
-
-k-of-n passes iff there exist ≥k distinct witness IDs with valid bundles.
-
-## Replay check (toy)
-Energy \(E(x)=x^2\), progress \(P(x)=x^2\), map \(T(x)=(1-2\eta)x\).
-
-For each step:
-\[
-x_{t+1} = T(x_t)
-\]
-\[
-E(x_{t+1}) \le E(x_t) - \alpha P(x_t)
-\]
-where the demo uses:
-\[
+Choose:
+[
 \alpha = 4\eta - 4\eta^2
-\]
+]
+
+Verifier checks for every step in trace.json:
+[
+E(x_{t+1}) \le E(x_t) - \alpha P(x_t)
+]
+
+Full derivation is in FORMAL_PROOFS.md, and the verifier recomputes it from artifacts.
+
+⸻
+
+Production direction
+
+This demo uses local HMAC witness bundles for portability. The architecture is designed to upgrade to:
+	•	Sigstore keyless signing + Rekor inclusion proofs
+	•	in-toto attestations (pipeline DAG)
+	•	multi-log redundancy
+	•	distributed RL shard packs merged via Merkle roots
+
+See ARCHITECTURE.md and ROADMAP.md.
+
