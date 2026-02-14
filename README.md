@@ -1,6 +1,6 @@
 **Trust-Debt Law:** a verified proofpack collapses “trust me” to **“k witnesses didn’t collude + verifier spec is honest.”**
 
-![proofpack-ci](../../actions/workflows/ci.yml/badge.svg)
+![proofpack-ci](../../actions/workflows/ci.yml/badge.svg) ![license](https://img.shields.io/badge/license-MIT-green) ![release](https://img.shields.io/badge/release-v1.0.0-blue)
 
 # vireon-proofpack-ios
 
