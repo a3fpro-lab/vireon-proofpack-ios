@@ -9,7 +9,14 @@
 from pathlib import Path
 import argparse
 import json
-import vproofpack as vp
+import sys
+
+# Ensure repo root is importable when running from tools/
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+import vproofpack as vp  # noqa: E402
 
 
 def load(p: Path):
@@ -34,9 +41,8 @@ def main():
     prov = load(root / "PROOFPACK" / "PROVENANCE_CERT.json")
     bundle_refs = prov["bundles"]
 
-    # Collect issuer + window for each referenced bundle
     issuers = set()
-    valid_bundles = 0
+    acceptable = 0
 
     for ref in bundle_refs:
         bpath = root / ref["path"]
@@ -46,19 +52,15 @@ def main():
         na = int(b["certificate"]["not_after"])
         window = na - nb
         if window > args.max_window:
-            # Not automatically fatal unless it's part of the k we count;
-            # we count only policy-acceptable bundles.
             continue
 
         issuers.add(b["witness"]["issuer"])
-        valid_bundles += 1
+        acceptable += 1
 
-    # Require at least k policy-acceptable bundles
-    if valid_bundles < args.k:
+    if acceptable < args.k:
         print("FAIL: policy:k_accept (not enough bundles within max-window)")
         return 1
 
-    # Issuer diversity policy
     if len(issuers) < args.min_issuers:
         print("FAIL: policy:issuer_diversity")
         return 1
