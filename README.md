@@ -1,3 +1,4 @@
+![proofpack-ci](../../actions/workflows/ci.yml/badge.svg)
 # vireon-proofpack-ios
 
 A **proofpack** is a tamper-evident, replay-verifiable container for *result claims*.
