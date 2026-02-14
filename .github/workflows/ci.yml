@@ -55,3 +55,9 @@ jobs:
 
       - name: Attack suite (expected FAIL modes)
         run: python tools/attack_suite.py
+
+              - name: Generate pinned test vectors
+        run: python tools/generate_test_vectors.py
+
+      - name: Verify pinned test vectors (root digest locked)
+        run: python tools/verify_test_vectors.py
