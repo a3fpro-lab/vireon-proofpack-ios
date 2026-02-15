@@ -1,4 +1,3 @@
-Paste:**
 
 ```python
 import os
